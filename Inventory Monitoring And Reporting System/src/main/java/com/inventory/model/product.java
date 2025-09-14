@@ -66,7 +66,7 @@ public class product {
         System.out.println("Quantity: " + quantity);
         System.out.println("Price: " + price);
         System.out.println("Stock Value: " + stockValue());
-        System.out.println();
+
         }
 
 
