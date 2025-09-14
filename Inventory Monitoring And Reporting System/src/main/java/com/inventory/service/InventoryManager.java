@@ -1,19 +1,15 @@
 package com.inventory.service;
 
-import com.inventory.model.product;
 import com.inventory.dao.ProductDAO;
-import java.util.ArrayList;
+import com.inventory.model.product;
 import java.util.List;
 import java.util.Scanner;
-import java.util.NoSuchElementException;
-import java.sql.SQLException;
 
 public class InventoryManager {
-
-    List<product> products = new ArrayList<>();
     Scanner sc = new Scanner(System.in);
-    private ProductDAO productDAO = new ProductDAO(); // Add this line
+    ProductDAO dao = new ProductDAO();
 
+    // Add product
     public void addProduct() {
         try {
             System.out.print("Enter ID: ");
@@ -36,130 +32,97 @@ public class InventoryManager {
 
             product p = new product(id, name, qty, price, category);
 
-            // Save to database
-            productDAO.addProduct(p);
+            dao.addProduct(p); // Save to DB
+            System.out.println(" Product added to database!");
 
-            // Also add to local list for current session
-            products.add(p);
-
-            System.out.println("✅ Product Added Successfully to database!");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("❌ Illegal argument: " + e.getMessage());
-        } catch (SQLException e) {
-            System.out.println("❌ Database error: " + e.getMessage());
-            e.printStackTrace(); // This will show detailed error
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    // Remove product
     public void removeProduct() {
         try {
             System.out.print("Enter ID to remove: ");
             int id = sc.nextInt();
 
-            // Remove from database
-            boolean removed = productDAO.deleteProduct(id);
-
-            if (removed) {
-                // Also remove from local list
-                products.removeIf(p -> p.getId() == id);
-                System.out.println("✅ Product Removed from database!");
+            boolean deleted = dao.deleteProduct(id);
+            if (deleted) {
+                System.out.println(" Product deleted from database!");
             } else {
-                System.out.println("❌ Product with ID " + id + " not found in database.");
+                System.out.println(" Product with ID " + id + " not found.");
             }
-
-        } catch (SQLException e) {
-            System.out.println("❌ Database error: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    // Update product
     public void updateProduct() {
         try {
             System.out.print("Enter ID to update: ");
-            int id = Integer.parseInt(sc.nextLine());
+            int id = sc.nextInt();
 
-            // Find product in database first
-            product p = productDAO.findById(id);
-
-            if (p != null) {
-                System.out.print("Enter new Quantity: ");
-                int qty = Integer.parseInt(sc.nextLine());
-                if (qty < 0) throw new IllegalArgumentException("Quantity cannot be negative");
-
-                System.out.print("Enter new Price: ");
-                double price = Double.parseDouble(sc.nextLine());
-                if (price < 0) throw new IllegalArgumentException("Price cannot be negative");
-
-                p.setQuantity(qty);
-                p.setPrice(price);
-
-                // Update in database
-                boolean updated = productDAO.updateProduct(p);
-
-                if (updated) {
-                    System.out.println("✅ Product Updated in database!");
-                } else {
-                    System.out.println("❌ Failed to update product.");
-                }
-            } else {
-                System.out.println("❌ Product not found in database.");
+            product existing = dao.findById(id);
+            if (existing == null) {
+                System.out.println(" Product not found in DB");
+                return;
             }
 
-        } catch (IllegalArgumentException e) {
-            System.out.println("❌ Error: " + e.getMessage());
-        } catch (SQLException e) {
-            System.out.println("❌ Database error: " + e.getMessage());
+            System.out.print("Enter new Quantity: ");
+            int qty = sc.nextInt();
+            if (qty < 0) throw new IllegalArgumentException("Quantity cannot be negative");
+
+            System.out.print("Enter new Price: ");
+            double price = sc.nextDouble();
+            if (price < 0) throw new IllegalArgumentException("Price cannot be negative");
+
+            existing.setQuantity(qty);
+            existing.setPrice(price);
+
+            boolean updated = dao.updateProduct(existing);
+            if (updated) {
+                System.out.println("Product updated in DB!");
+            } else {
+                System.out.println(" Update failed.");
+            }
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    // Search product
     public void searchProduct() {
         try {
             System.out.print("Enter Name to search: ");
             String name = sc.nextLine();
 
-            // Search in database
-            List<product> found = productDAO.searchByName(name);
-
-            if (!found.isEmpty()) {
-                System.out.println("🔍 Found products:");
-                for (product p : found) {
+            List<product> results = dao.searchByName(name);
+            if (results.isEmpty()) {
+                System.out.println(" No products found with name: " + name);
+            } else {
+                for (product p : results) {
                     p.display();
                 }
-            } else {
-                System.out.println("❌ No products found with name containing: " + name);
             }
-
-        } catch (SQLException e) {
-            System.out.println("❌ Database error: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    // Display all products
     public void displayAll() {
         try {
-            // Get all products from database
-            List<product> allProducts = productDAO.getAllProducts();
-
-            if (allProducts.isEmpty()) {
-                System.out.println("📋 No products available in database");
+            List<product> products = dao.getAllProducts();
+            if (products.isEmpty()) {
+                System.out.println("️ No products in DB.");
             } else {
-                System.out.println("📋 All Products from Database:");
-                for (product p : allProducts) {
+                for (product p : products) {
                     p.display();
                 }
             }
-
-        } catch (SQLException e) {
-            System.out.println("❌ Database error: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
