@@ -6,6 +6,7 @@ import com.inventory.exception.InvalidInputException;
 import com.inventory.exception.NoProductFoundException;
 import com.inventory.exception.InvalidQuantityException;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -41,6 +42,8 @@ public class InventoryManager {
             System.out.println(" Invalid input! Please enter numbers for ID, Quantity, and Price.");
         } catch (InvalidQuantityException e) {
             System.out.println(" " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -58,6 +61,8 @@ public class InventoryManager {
             System.out.println(" Invalid input! Please enter a number.");
         } catch (NoProductFoundException e) {
             System.out.println(" " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -92,6 +97,8 @@ public class InventoryManager {
             System.out.println(" Invalid input! Please enter numbers for ID, Quantity, and Price.");
         } catch (NoProductFoundException | InvalidQuantityException e) {
             System.out.println(" " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -109,6 +116,8 @@ public class InventoryManager {
             System.out.println(" Invalid input! Please enter a number.");
         } catch (NoProductFoundException e) {
             System.out.println(" " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
