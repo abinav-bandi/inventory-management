@@ -39,9 +39,10 @@ public class ProductDAO {
                 product p = new product(
                         rs.getInt("id"),
                         rs.getString("name"),
+                        rs.getString("category"),
                         rs.getInt("quantity"),
-                        rs.getDouble("price"),
-                        rs.getString("category")
+                        rs.getDouble("price")
+
                 );
                 products.add(p);
             }
@@ -63,9 +64,10 @@ public class ProductDAO {
                 return new product(
                         rs.getInt("id"),
                         rs.getString("name"),
+                        rs.getString("category"),
                         rs.getInt("quantity"),
-                        rs.getDouble("price"),
-                        rs.getString("category")
+                        rs.getDouble("price")
+
                 );
             }
         }
@@ -116,9 +118,9 @@ public class ProductDAO {
                 product p = new product(
                         rs.getInt("id"),
                         rs.getString("name"),
+                        rs.getString("category"),
                         rs.getInt("quantity"),
-                        rs.getDouble("price"),
-                        rs.getString("category")
+                        rs.getDouble("price")
                 );
                 products.add(p);
             }

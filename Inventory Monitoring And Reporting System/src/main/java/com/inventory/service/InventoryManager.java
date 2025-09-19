@@ -5,8 +5,13 @@ import com.inventory.model.product;
 import com.inventory.exception.InvalidInputException;
 import com.inventory.exception.NoProductFoundException;
 import com.inventory.exception.InvalidQuantityException;
+import com.inventory.util.CSVHelper;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -34,7 +39,7 @@ public class InventoryManager {
             double price = Double.parseDouble(sc.nextLine());
             if (price < 0) throw new InvalidQuantityException("Price cannot be negative");
 
-            product p = new product(id, name, qty, price, category);
+            product p = new product(id, name, category,qty, price);
             dao.addProduct(p); // Save to DB
             System.out.println(" Product added succesfully ");
 
@@ -119,6 +124,30 @@ public class InventoryManager {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+    public void generateReport() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();  // consume newline
+
+        System.out.print("Enter Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter Category: ");
+        String category = scanner.nextLine();
+
+        System.out.print("Enter Quantity: ");
+        int quantity = scanner.nextInt();
+
+        System.out.print("Enter Price: ");
+        double price = scanner.nextDouble();
+
+        product p = new product(id, name, category, quantity, price);
+        List<product> list = new ArrayList<>();
+        list.add(p);
+        CSVHelper.saveProducts(list);
     }
 
     // Display all products

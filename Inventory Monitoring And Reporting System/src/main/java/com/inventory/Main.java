@@ -22,7 +22,8 @@ public class Main {
                 System.out.println("3. Update Product");
                 System.out.println("4. Search Product by id");
                 System.out.println("5. Display All Products");
-                System.out.println("6. Exit");
+                System.out.println("6. Generate Report");
+                System.out.println("7. Exit");
                 System.out.print("Enter choice: ");
                 choice = sc.nextInt();
 
@@ -43,6 +44,9 @@ public class Main {
                         manager.displayAll();
                         break;
                     case 6:
+                        manager.generateReport();
+                        break;
+                    case 7:
                         System.out.println("Exiting...");
                         break;
                     default:
@@ -55,7 +59,7 @@ public class Main {
                 System.out.println("exception"+e.getMessage());
                 sc.nextLine();
             }
-        } while (choice != 6);
+        } while (choice != 7);
     }
 
 }

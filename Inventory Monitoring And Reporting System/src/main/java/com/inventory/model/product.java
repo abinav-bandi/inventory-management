@@ -3,18 +3,19 @@ package com.inventory.model;
 public class product {
     private int id;
     private String name;
+    private String category;
     private int quantity;
     private double price;
-    private String category;
 
 
-    public product(int id, String name, int quantity, double price ,String category) {
+    public product(int id, String name, String category,int quantity, double price) {
         this.id = id;
         this.name = name;
+        this.category = category;
         this.quantity = quantity;
         this.price = price;
-        this.category = category;
     }
+
     public double stockValue() {
         return quantity * price;
     }
