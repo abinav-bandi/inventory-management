@@ -1,15 +1,12 @@
 package com.inventory.service;
 
-import com.inventory.dao.ProductDAO;
-import com.inventory.model.product;
-import com.inventory.exception.InvalidInputException;
+import com.inventory.dao.ProductDAOImpl;
+import com.inventory.model.Product;
 import com.inventory.exception.NoProductFoundException;
 import com.inventory.exception.InvalidQuantityException;
 import com.inventory.util.CSVHelper;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +14,7 @@ import java.util.Scanner;
 
 public class InventoryManager {
     private Scanner sc = new Scanner(System.in);
-    private ProductDAO dao = new ProductDAO();
+    private ProductDAOImpl dao = new ProductDAOImpl();
 
     // Add product
     public void addProduct() {
@@ -39,7 +36,7 @@ public class InventoryManager {
             double price = Double.parseDouble(sc.nextLine());
             if (price < 0) throw new InvalidQuantityException("Price cannot be negative");
 
-            product p = new product(id, name, category,qty, price);
+            Product p = new Product(id, name, category,qty, price);
             dao.addProduct(p); // Save to DB
             System.out.println(" Product added succesfully ");
 
@@ -77,7 +74,7 @@ public class InventoryManager {
             System.out.print("Enter ID to update: ");
             int id = Integer.parseInt(sc.nextLine());
 
-            product existing = dao.findById(id);
+            Product existing = dao.getProductById(id);
             if (existing == null) throw new NoProductFoundException("Product with ID " + id + " not found.");
 
             System.out.print("Enter new Quantity: ");
@@ -113,7 +110,7 @@ public class InventoryManager {
             System.out.print("Enter ID to search: ");
             int id = Integer.parseInt(sc.nextLine());
 
-            product p = dao.findById(id);
+            Product p = dao.getProductById(id);
             if (p == null) throw new NoProductFoundException("Product with ID " + id + " not found.");
             p.display();
 
@@ -144,8 +141,8 @@ public class InventoryManager {
         System.out.print("Enter Price: ");
         double price = scanner.nextDouble();
 
-        product p = new product(id, name, category, quantity, price);
-        List<product> list = new ArrayList<>();
+        Product p = new Product(id, name, category, quantity, price);
+        List<Product> list = new ArrayList<>();
         list.add(p);
         CSVHelper.saveProducts(list);
     }
@@ -153,12 +150,12 @@ public class InventoryManager {
     // Display all products
     public void displayAll() {
         try {
-            List<product> products = dao.getAllProducts();
-            if (products.isEmpty()) {
+            List<Product> Products = dao.getAllProducts();
+            if (Products.isEmpty()) {
                 System.out.println("️ No products Found");
                 return;
             }
-            for (product p : products) {
+            for (Product p : Products) {
                 p.display();
             }
         } catch (Exception e) {

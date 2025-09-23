@@ -1,16 +1,15 @@
 package com.inventory.dao;
 
 import com.inventory.util.DBConnection;
-import com.inventory.model.product;
+import com.inventory.model.Product;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class ProductDAO {
+public class ProductDAOImpl implements ProductDao {
 
     // Insert Product
-    public void addProduct(product product) throws SQLException {
+    public void addProduct(Product product) throws SQLException {
         String sql = "INSERT INTO products (id, name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -22,36 +21,40 @@ public class ProductDAO {
             stmt.setDouble(5, product.getPrice());
 
             int rowsAffected = stmt.executeUpdate();
-            System.out.println("Database: " + rowsAffected + " row inserted");
+            if (rowsAffected > 0) {
+                System.out.println("✅ Product added to database successfully: " + product.getName());
+            } else {
+                System.out.println("⚠️ Failed to add product: " + product.getName());
+            }
         }
     }
 
     // Get all products
-    public List<product> getAllProducts() throws SQLException {
+    public List<Product> getAllProducts() throws SQLException {
         String sql = "SELECT * FROM products";
-        List<product> products = new ArrayList<>();
+        List<Product> Products = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                product p = new product(
+                Product p = new Product(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("category"),
                         rs.getInt("quantity"),
                         rs.getDouble("price")
-
                 );
-                products.add(p);
+                Products.add(p);
             }
+            System.out.println("📦 Total products fetched: " + Products.size());
         }
-        return products;
+        return Products;
     }
 
     // Find product by ID
-    public product findById(int id) throws SQLException {
+    public Product getProductById(int id) throws SQLException {
         String sql = "SELECT * FROM products WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -61,21 +64,23 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new product(
+                System.out.println("🔍 Product found with ID: " + id);
+                return new Product(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("category"),
                         rs.getInt("quantity"),
                         rs.getDouble("price")
-
                 );
+            } else {
+                System.out.println("❌ No product found with ID: " + id);
             }
         }
         return null;
     }
 
     // Update product
-    public boolean updateProduct(product product) throws SQLException {
+    public boolean updateProduct(Product product) throws SQLException {
         String sql = "UPDATE products SET name=?, category=?, quantity=?, price=? WHERE id=?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -87,7 +92,14 @@ public class ProductDAO {
             stmt.setDouble(4, product.getPrice());
             stmt.setInt(5, product.getId());
 
-            return stmt.executeUpdate() > 0;
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Product updated successfully: " + product.getName());
+                return true;
+            } else {
+                System.out.println("⚠️ Failed to update product with ID: " + product.getId());
+                return false;
+            }
         }
     }
 
@@ -99,14 +111,21 @@ public class ProductDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("🗑️ Product deleted successfully with ID: " + id);
+                return true;
+            } else {
+                System.out.println("❌ No product found to delete with ID: " + id);
+                return false;
+            }
         }
     }
 
     // Search by name
-    public List<product> searchByName(String name) throws SQLException {
+    public List<Product> searchByName(String name) throws SQLException {
         String sql = "SELECT * FROM products WHERE name LIKE ?";
-        List<product> products = new ArrayList<>();
+        List<Product> Products = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -115,16 +134,22 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                product p = new product(
+                Product p = new Product(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("category"),
                         rs.getInt("quantity"),
                         rs.getDouble("price")
                 );
-                products.add(p);
+                Products.add(p);
+            }
+
+            if (!Products.isEmpty()) {
+                System.out.println("🔎 Found " + Products.size() + " products matching: " + name);
+            } else {
+                System.out.println("❌ No products found with name like: " + name);
             }
         }
-        return products;
+        return Products;
     }
 }

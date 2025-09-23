@@ -1,6 +1,6 @@
 package com.inventory.model;
 
-public class product {
+public class Product {
     private int id;
     private String name;
     private String category;
@@ -8,7 +8,7 @@ public class product {
     private double price;
 
 
-    public product(int id, String name, String category,int quantity, double price) {
+    public Product(int id, String name, String category, int quantity, double price) {
         this.id = id;
         this.name = name;
         this.category = category;
