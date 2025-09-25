@@ -78,6 +78,30 @@ public class ProductDAOImpl implements ProductDao {
         }
         return null;
     }
+    public List<Product> searchByCategory(String category) throws SQLException {
+        String sql = "SELECT * FROM products WHERE category LIKE ?";
+        List<Product> products = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + category + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Product p = new Product(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("category"),
+                        rs.getInt("quantity"),
+                        rs.getDouble("price")
+                );
+                products.add(p);
+            }
+        }
+        return products;
+    }
+
 
     // Update product
     public boolean updateProduct(Product product) throws SQLException {

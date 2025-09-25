@@ -76,7 +76,10 @@ public class InventoryManager {
 
             Product existing = dao.getProductById(id);
             if (existing == null) throw new NoProductFoundException("Product with ID " + id + " not found.");
-
+            System.out.print("Enter new Name: ");
+            String name = sc.nextLine();
+            System.out.print("Enter new Category: ");
+            String category = sc.nextLine();
             System.out.print("Enter new Quantity: ");
             int qty = Integer.parseInt(sc.nextLine());
             if (qty < 0) throw new InvalidQuantityException("Quantity cannot be negative");
@@ -84,7 +87,8 @@ public class InventoryManager {
             System.out.print("Enter new Price: ");
             double price = Double.parseDouble(sc.nextLine());
             if (price < 0) throw new InvalidQuantityException("Price cannot be negative");
-
+            existing.setName(name);
+            existing.setCategory(category);
             existing.setQuantity(qty);
             existing.setPrice(price);
 
@@ -107,21 +111,53 @@ public class InventoryManager {
     // Search product
     public void searchProduct() {
         try {
-            System.out.print("Enter ID to search: ");
-            int id = Integer.parseInt(sc.nextLine());
+            System.out.println("\n=== Search Product ===");
+            System.out.println("1. Search by ID");
+            System.out.println("2. Search by Name");
+            System.out.println("3. Search by Category");
+            System.out.print("Enter your choice: ");
+            int choice = Integer.parseInt(sc.nextLine());
 
-            Product p = dao.getProductById(id);
-            if (p == null) throw new NoProductFoundException("Product with ID " + id + " not found.");
-            p.display();
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter ID to search: ");
+                    int id = Integer.parseInt(sc.nextLine());
+                    Product p = dao.getProductById(id);
+                    if (p == null) throw new NoProductFoundException("Product with ID " + id + " not found.");
+                    p.display();
+                    break;
+
+                case 2:
+                    System.out.print("Enter product name to search: ");
+                    String name = sc.nextLine();
+                    List<Product> nameResults = dao.searchByName(name);
+                    if (nameResults.isEmpty())
+                        throw new NoProductFoundException("No products found with name containing: " + name);
+                    nameResults.forEach(Product::display);
+                    break;
+
+                case 3:
+                    System.out.print("Enter category to search: ");
+                    String category = sc.nextLine();
+                    List<Product> categoryResults = dao.searchByCategory(category);
+                    if (categoryResults.isEmpty())
+                        throw new NoProductFoundException("No products found in category: " + category);
+                    categoryResults.forEach(Product::display);
+                    break;
+
+                default:
+                    System.out.println("Invalid choice! Please select 1, 2, or 3.");
+            }
 
         } catch (NumberFormatException e) {
-            System.out.println(" Invalid input! Please enter a number.");
+            System.out.println("❌ Invalid input! Please enter a number.");
         } catch (NoProductFoundException e) {
-            System.out.println(" " + e.getMessage());
+            System.out.println("⚠️ " + e.getMessage());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
     public void generateReport() throws IOException {
         Scanner scanner = new Scanner(System.in);
 
