@@ -14,7 +14,7 @@ public class Main {
         do {
             try {
                 System.out.println("\n==== INVENTORY MENU ====");
-                System.out.println("1. Add Product");
+                System.out.println("1. Add prod");
                 System.out.println("2. Remove Product");
                 System.out.println("3. Update product");
                 System.out.println("4. Search Product");

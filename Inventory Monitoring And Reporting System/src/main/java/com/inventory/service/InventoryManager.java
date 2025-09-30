@@ -123,16 +123,15 @@ public class InventoryManager {
                     System.out.print("Enter ID to search: ");
                     int id = Integer.parseInt(sc.nextLine());
                     Product p = dao.getProductById(id);
-                    if (p == null) throw new NoProductFoundException("Product with ID " + id + " not found.");
-                    p.display();
+                    if(p!=null) {
+                        p.display();
+                    }
                     break;
 
                 case 2:
                     System.out.print("Enter product name to search: ");
                     String name = sc.nextLine();
                     List<Product> nameResults = dao.searchByName(name);
-                    if (nameResults.isEmpty())
-                        throw new NoProductFoundException("No products found with name containing: " + name);
                     nameResults.forEach(Product::display);
                     break;
 
@@ -140,8 +139,7 @@ public class InventoryManager {
                     System.out.print("Enter category to search: ");
                     String category = sc.nextLine();
                     List<Product> categoryResults = dao.searchByCategory(category);
-                    if (categoryResults.isEmpty())
-                        throw new NoProductFoundException("No products found in category: " + category);
+
                     categoryResults.forEach(Product::display);
                     break;
 
@@ -151,8 +149,6 @@ public class InventoryManager {
 
         } catch (NumberFormatException e) {
             System.out.println("❌ Invalid input! Please enter a number.");
-        } catch (NoProductFoundException e) {
-            System.out.println("⚠️ " + e.getMessage());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -191,9 +187,10 @@ public class InventoryManager {
                 System.out.println("️ No products Found");
                 return;
             }
-            for (Product p : Products) {
-                p.display();
-            }
+            System.out.printf("%-5s %-15s %-15s %-10s %-10s%n ", "ID", "Name", "Category", "Quantity", "Price");
+            System.out.println("------------------------------------------------------");
+            Products.forEach(p ->
+                    System.out.printf("%-5s %-15s %-15s %-10s %-10s%n ",p.getId(),p.getName(),p.getCategory(),p.getQuantity(),p.getPrice()));
         } catch (Exception e) {
             System.out.println(" Error while fetching products: " + e.getMessage());
         }

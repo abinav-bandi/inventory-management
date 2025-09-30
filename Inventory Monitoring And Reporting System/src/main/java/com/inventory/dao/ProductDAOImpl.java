@@ -26,9 +26,11 @@ public class ProductDAOImpl implements ProductDao {
             } else {
                 System.out.println("⚠️ Failed to add product: " + product.getName());
             }
+        }catch (SQLIntegrityConstraintViolationException e){
+            System.out.println("Product already exists in the database: " + product.getName());
+
         }
     }
-
     // Get all products
     public List<Product> getAllProducts() throws SQLException {
         String sql = "SELECT * FROM products";
@@ -72,7 +74,7 @@ public class ProductDAOImpl implements ProductDao {
                         rs.getInt("quantity"),
                         rs.getDouble("price")
                 );
-            } else {
+            }else {
                 System.out.println("❌ No product found with ID: " + id);
             }
         }
@@ -97,6 +99,11 @@ public class ProductDAOImpl implements ProductDao {
                         rs.getDouble("price")
                 );
                 products.add(p);
+            }
+            if (products.isEmpty()) {
+                System.out.println("❌ No products found in category: " + category);
+            } else {
+                System.out.println("🔎 Found " + products.size() + " products in category: " + category);
             }
         }
         return products;
@@ -170,7 +177,8 @@ public class ProductDAOImpl implements ProductDao {
 
             if (!Products.isEmpty()) {
                 System.out.println("🔎 Found " + Products.size() + " products matching: " + name);
-            } else {
+            }
+            else {
                 System.out.println("❌ No products found with name like: " + name);
             }
         }
