@@ -1,9 +1,12 @@
 package com.inventory.service;
 
 import com.inventory.dao.ProductDAOImpl;
+import com.inventory.dao.UserDAOImpl;
+import com.inventory.exception.InvalidInputException;
 import com.inventory.model.Product;
 import com.inventory.exception.NoProductFoundException;
 import com.inventory.exception.InvalidQuantityException;
+import com.inventory.model.User;
 import com.inventory.util.CSVHelper;
 
 import java.io.IOException;
@@ -15,6 +18,7 @@ import java.util.Scanner;
 public class InventoryManager {
     private Scanner sc = new Scanner(System.in);
     private ProductDAOImpl dao = new ProductDAOImpl();
+    private UserDAOImpl userDao = new UserDAOImpl();
 
     // Add product
     public void addProduct() {
@@ -195,4 +199,77 @@ public class InventoryManager {
             System.out.println(" Error while fetching products: " + e.getMessage());
         }
     }
+    public void addUser() {
+        try {
+            System.out.print("Enter User ID: ");
+            int id = Integer.parseInt(sc.nextLine());
+
+            System.out.print("Enter Username: ");
+            String username = sc.nextLine().trim();
+            if (username.isEmpty()) {
+                throw new InvalidInputException("Username cannot be empty");
+            }
+
+            System.out.print("Enter Password: ");
+            String password = sc.nextLine().trim();
+            if (password.isEmpty()) {
+                throw new InvalidInputException("Password cannot be empty");
+            }
+
+            System.out.print("Enter Role: ");
+            String role = sc.nextLine().trim();
+            if (role.isEmpty()) {
+                throw new InvalidInputException("Role cannot be empty");
+            }
+
+
+            // Create User object
+            User user = new User();
+            user.setId(id);
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setRole(role);
+
+            // Call DAO to add user
+            userDao.addUser(user);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter numbers where required.");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void getUserByUsername() {
+        try {
+            System.out.print("Enter username to search: ");
+            String username = sc.nextLine().trim();
+
+            if (username.isEmpty()) {
+                throw new InvalidInputException("Username cannot be empty");
+            }
+
+            List<User> users = userDao.getUserByUsername(username);
+
+            if (!users.isEmpty()) {
+                System.out.println("=== Users Found ===");
+                for (User u : users) {
+                    System.out.println("ID: " + u.getId() +
+                            ", Username: " + u.getUsername() +
+                            ", Password: " + u.getPassword() +
+                            ", Role: " + u.getRole());
+                }
+            } else {
+                System.out.println("❌ No users found with username like: " + username);
+            }
+
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
