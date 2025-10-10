@@ -36,7 +36,7 @@ public class Product {
     }
 
     public void setId(int id) {
-        if(id<0) throw new IllegalArgumentException("Id must be greater than 0");
+        if(id<0) throw new IllegalArgumentException("❌Id must be greater than 0");
         this.id = id;
     }
 
@@ -45,7 +45,7 @@ public class Product {
     }
 
     public void setQuantity(int quantity) {
-        if(quantity <0) throw new InputMismatchException("Quantity must be greater than 0");
+        if(quantity <0) throw new InputMismatchException("❌Quantity must be greater than 0");
         this.quantity = quantity;
     }
 
@@ -54,7 +54,7 @@ public class Product {
     }
 
     public void setPrice(double price) {
-        if(price < 0) throw new InputMismatchException("Price cannot be negitive");
+        if(price < 0) throw new InputMismatchException("❌Price cannot be negitive");
         this.price = price;
     }
 

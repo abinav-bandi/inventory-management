@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDAOImpl implements ProductDao {
+    public final Connection conn = DBConnection.getConnection();
 
     // Insert Product
     public void addProduct(Product product) throws SQLException {
         String sql = "INSERT INTO products (id, name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setInt(1, product.getId());
             stmt.setString(2, product.getName());
@@ -26,19 +26,13 @@ public class ProductDAOImpl implements ProductDao {
             } else {
                 System.out.println("⚠️ Failed to add product: " + product.getName());
             }
-        }catch (SQLIntegrityConstraintViolationException e){
-            System.out.println("Product already exists in the database: " + product.getName());
-
-        }
     }
     // Get all products
     public List<Product> getAllProducts() throws SQLException {
         String sql = "SELECT * FROM products";
         List<Product> Products = new ArrayList<>();
-
-        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 Product p = new Product(
@@ -51,16 +45,13 @@ public class ProductDAOImpl implements ProductDao {
                 Products.add(p);
             }
             System.out.println("📦 Total products fetched: " + Products.size());
-        }
         return Products;
     }
 
     // Find product by ID
     public Product getProductById(int id) throws SQLException {
         String sql = "SELECT * FROM products WHERE id = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -77,15 +68,12 @@ public class ProductDAOImpl implements ProductDao {
             }else {
                 System.out.println("❌ No product found with ID: " + id);
             }
-        }
         return null;
     }
     public List<Product> searchByCategory(String category) throws SQLException {
         String sql = "SELECT * FROM products WHERE category LIKE ?";
         List<Product> products = new ArrayList<>();
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setString(1, "%" + category + "%");
             ResultSet rs = stmt.executeQuery();
@@ -105,7 +93,6 @@ public class ProductDAOImpl implements ProductDao {
             } else {
                 System.out.println("🔎 Found " + products.size() + " products in category: " + category);
             }
-        }
         return products;
     }
 
@@ -113,9 +100,7 @@ public class ProductDAOImpl implements ProductDao {
     // Update product
     public boolean updateProduct(Product product) throws SQLException {
         String sql = "UPDATE products SET name=?, category=?, quantity=?, price=? WHERE id=?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setString(1, product.getName());
             stmt.setString(2, product.getCategory());
@@ -131,15 +116,12 @@ public class ProductDAOImpl implements ProductDao {
                 System.out.println("⚠️ Failed to update product with ID: " + product.getId());
                 return false;
             }
-        }
     }
 
     // Delete product
     public boolean deleteProduct(int id) throws SQLException {
         String sql = "DELETE FROM products WHERE id = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setInt(1, id);
             int rowsAffected = stmt.executeUpdate();
@@ -150,16 +132,13 @@ public class ProductDAOImpl implements ProductDao {
                 System.out.println("❌ No product found to delete with ID: " + id);
                 return false;
             }
-        }
     }
 
     // Search by name
     public List<Product> searchByName(String name) throws SQLException {
         String sql = "SELECT * FROM products WHERE name LIKE ?";
         List<Product> Products = new ArrayList<>();
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setString(1, "%" + name + "%");
             ResultSet rs = stmt.executeQuery();
@@ -181,7 +160,7 @@ public class ProductDAOImpl implements ProductDao {
             else {
                 System.out.println("❌ No products found with name like: " + name);
             }
-        }
+
         return Products;
     }
 }
