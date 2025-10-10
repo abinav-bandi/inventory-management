@@ -1,101 +1,197 @@
 package com.inventory;
 
-
+import com.inventory.dao.ProductDAOImpl;
+import com.inventory.dao.ProductDao;
 import com.inventory.model.User;
 import com.inventory.service.InventoryManager;
+import com.inventory.service.UserService;
+
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-//    public static void main(String[] args) {
-//        InventoryManager manager = new InventoryManager();
-//        Scanner sc = new Scanner(System.in);
-//
-//        int choice=-1;
-//        do {
-//            try {
-//                System.out.println("\n==== INVENTORY MENU ====");
-//                System.out.println("1. Add product");
-//                System.out.println("2. Remove Product");
-//                System.out.println("3. Update product");
-//                System.out.println("4. Search product");
-//                System.out.println("5. Display All Products");
-//                System.out.println("6. Generate Report");
-//                System.out.println("7. Exit");
-//                System.out.print("Enter choice: ");
-//                choice = sc.nextInt();
-//
-//                switch (choice) {
-//                    case 1:
-//                        manager.addProduct();
-//                        break;
-//                    case 2:
-//                        manager.removeProduct();
-//                        break;
-//                    case 3:
-//                        manager.updateProduct();
-//                        break;
-//                    case 4:
-//                        manager.searchProduct();
-//                        break;
-//                    case 5:
-//                        manager.displayAll();
-//                        break;
-//                    case 6:
-//                        manager.generateReport();
-//                        break;
-//                    case 7:
-//                        System.out.println("Exiting...");
-//                        break;
-//                    default:
-//                        System.out.println("Invalid choice");
-//                }
-//            }catch (InputMismatchException e) {
-//                System.out.println("invalid input");
-//                sc.nextLine();
-//            }catch (Exception e) {
-//                System.out.println("exception"+e.getMessage());
-//                sc.nextLine();
-//            }
-//        } while (choice != 7);
-//    }
-public static void main(String[] args) {
-        InventoryManager manager = new InventoryManager();
-        Scanner sc = new Scanner(System.in);
+    public static final Scanner sc = new Scanner(System.in);
+    public static final ProductDao dao = new ProductDAOImpl();
+    public static final InventoryManager manager = new InventoryManager();
 
-        int choice=-1;
-        do {
-            try {
-                System.out.println("\n==== INVENTORY MENU ====");
-                System.out.println("1. Add user");
-                System.out.println("2. get user by name");
-                System.out.println("3. Exit");
-                System.out.print("Enter choice: ");
-                choice = sc.nextInt();
+    public static void main(String[] args) throws SQLException, IOException {
+        UserService userService = new UserService();
+        Scanner scanner = new Scanner(System.in);
 
-                switch (choice) {
-                    case 1:
-                        manager.addUser();
-                        break;
-                    case 2:
-                        manager.getUserByUsername();
-                        break;
-                    case 3:
-                        System.out.println("Exiting...");
-                        break;
-                    default:
-                        System.out.println("Invalid choice");
+        System.out.println("==== Welcome to Inventory Management ====");
+        System.out.println("1. Register");
+        System.out.println("2. Login");
+        System.out.print("Enter your choice: ");
+        int choice = Integer.parseInt(scanner.nextLine());
+
+        User loggedInUser = null;
+
+        switch (choice) {
+            case 1:
+                // Registration
+                System.out.print("Enter new username: ");
+                String newUsername = scanner.nextLine().trim();
+
+                System.out.print("Enter new password: ");
+                String newPassword = scanner.nextLine().trim();
+
+                System.out.print("Enter role (Admin/User): ");
+                String role = scanner.nextLine().trim().toUpperCase();
+
+                boolean registered = userService.register(newUsername, newPassword, role);
+                if (!registered) {
+                    System.out.println("❌ Registration failed. Try again.");
+                    return;
                 }
-            }catch (InputMismatchException e) {
-                System.out.println("invalid input");
-                sc.nextLine();
-            }catch (Exception e) {
-                System.out.println("exception"+e.getMessage());
-                sc.nextLine();
+                System.out.println("\nPlease login to continue.");
+
+                // Ask user to login after registration
+                System.out.print("Enter username: ");
+                String usernameAfterReg = scanner.nextLine().trim();
+
+                System.out.print("Enter password: ");
+                String passwordAfterReg = scanner.nextLine().trim();
+
+                loggedInUser = userService.login(usernameAfterReg, passwordAfterReg);
+                if (loggedInUser == null) {
+                    System.out.println("❌ Invalid username or password.");
+                    return;
+                }
+                break;
+
+            case 2:
+                // Direct login
+                System.out.print("Enter username: ");
+                String username = scanner.nextLine().trim();
+
+                System.out.print("Enter password: ");
+                String password = scanner.nextLine().trim();
+
+                loggedInUser = userService.login(username, password);
+                if (loggedInUser == null) {
+                    System.out.println("❌ Invalid username or password.");
+                    return;
+                }
+                break;
+
+            default:
+                System.out.println("Invalid choice!");
+                return;
+        }
+
+        // If login successful
+        System.out.println("✅ Login successful! Welcome, " + loggedInUser.getUsername() +
+                " (" + loggedInUser.getRole() + ")");
+
+        if (loggedInUser.getRole().equalsIgnoreCase("ADMIN")) {
+            adminMenu(scanner);
+        } else {
+            userMenu(scanner);
+        }
+    }
+
+    // ===== ADMIN MENU =====
+    public static void adminMenu(Scanner scanner) throws SQLException, IOException {
+        while (true) {
+            System.out.println("\n==== ADMIN INVENTORY MENU ====");
+            System.out.println("1. Add product");
+            System.out.println("2. Remove Product");
+            System.out.println("3. Update product");
+            System.out.println("4. Search product");
+            System.out.println("5. Display All Products");
+            System.out.println("6. Generate Report");
+            System.out.println("7. Filter price by range");
+            System.out.println("8. Logout");
+
+            System.out.print("Enter choice: ");
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                System.out.println("❌ Choice cannot be empty. Try again.");
+                continue;
             }
-        } while (choice != 3);
 
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid input! Please enter a number.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1 -> manager.addProduct();
+                case 2 -> manager.removeProduct();
+                case 3 -> manager.updateProduct();
+                case 4 -> manager.searchProduct();
+                case 5 -> manager.displayAll();
+                case 6 -> manager.generateReport();
+                case 7 -> manager.filterByPriceRange();
+                case 8 -> {
+                    System.out.println("👋 Logged out successfully!");
+                    return;
+                }
+                default -> System.out.println("❌ Invalid choice! Try again.");
+            }
+        }
+    }
+
+    // ===== USER MENU =====
+    private static void userMenu(Scanner scanner) throws SQLException {
+        while (true) {
+            System.out.println("\n==== USER INVENTORY MENU ====");
+            System.out.println("1. View all products");
+            System.out.println("2. Search product by ID");
+            System.out.println("3. Filter by price range");
+            System.out.println("4. Logout");
+            System.out.print("Enter choice: ");
+            int choice = Integer.parseInt(scanner.nextLine());
+
+            switch (choice) {
+                case 1 -> manager.displayAll();
+                case 2 -> manager.searchProduct();
+                case 3 -> manager.filterByPriceRange();
+                case 4 -> {
+                    System.out.println("👋 Logged out successfully!");
+                    return;
+                }
+                default -> System.out.println("❌ Invalid choice! Try again.");
+            }
+        }
+//        while(true){
+//         try {
+//         System.out.println("\n==== INVENTORY MENU ====");
+//         System.out.println("1. Add user");
+//         System.out.println("2. get user by name");
+//         System.out.println("3. remove user");
+//         System.out.println("4. Exit");
+//         System.out.print("Enter choice: ");
+//         int choice = sc.nextInt();
+//         switch (choice) {
+//         case 1:
+//         manager.addUser();
+//         break;
+//         case 2:
+//         manager.getUserByUsername();
+//         break;
+//             case 3:
+//                 manager.removeUser();
+//                 break;
+//         case 4:
+//         System.out.println("Exiting...");
+//         return;
+//         default:
+//         System.out.println("Invalid choice");
+//         }
+//         }catch (InputMismatchException e) {
+//         System.out.println("invalid input");
+//         sc.nextLine(); // }catch (Exception e) {
+//         System.out.println("exception"+e.getMessage());
+//         sc.nextLine();
+//         }
+//         }
+    }
 }
 
-
-}
