@@ -9,6 +9,7 @@ import java.util.List;
 public class ProductDAOImpl implements ProductDao {
     public final Connection conn = DBConnection.getConnection();
 
+
     // Insert Product
     public void addProduct(Product product) throws SQLException {
         String sql = "INSERT INTO products (id, name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";

@@ -15,10 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class InventoryManager  {
+public class InventoryManager{
     private Scanner sc = new Scanner(System.in);
     private ProductDAOImpl dao = new ProductDAOImpl();
     private UserDAOImpl userDao = new UserDAOImpl();
+
 
     // Add product
     public void addProduct() {
@@ -229,7 +230,7 @@ public class InventoryManager  {
         Product p = new Product(id, name, category, quantity, price);
         List<Product> list = new ArrayList<>();
         list.add(p);
-        CSVHelper.saveProducts(list);
+        CSVHelper.generateProductReport(list,"Admin");
         System.out.println("📄 Report generated successfully!");
     }
 

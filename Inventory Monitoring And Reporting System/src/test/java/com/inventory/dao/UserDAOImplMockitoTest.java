@@ -1,40 +1,104 @@
 package com.inventory.dao;
-import com.inventory.model.Product;
-import com.inventory.model.User;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.List;
+import com.inventory.model.User;
+import com.inventory.util.DBConnection;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.MockitoAnnotations;
+
+import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 public class UserDAOImplMockitoTest {
-    public static UserDao userDao;
 
-    @Before
-    public void setUp() throws Exception{
-        userDao= Mockito.mock(UserDao.class);
-    }
-    @Test
-    public void testAddUserSuccess() throws Exception{
-        User u=new User("ram","123","admin");
-        doNothing().when(userDao).addUser(u);
-        userDao.addUser(u);
-        verify(userDao,times(1)).addUser(u);
+    @Mock
+    private Connection mockConnection;
 
+    @Mock
+    private PreparedStatement mockPreparedStatement;
+
+    @Mock
+    private ResultSet mockResultSet;
+
+    private UserDAOImpl userDAO;
+    private MockedStatic<DBConnection> mockedDBConnection;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        DBConnection.enableTestMode();
+        mockedDBConnection = mockStatic(DBConnection.class);
+        mockedDBConnection.when(DBConnection::getConnection).thenReturn(mockConnection);
+        userDAO = new UserDAOImpl();
     }
+
+    @AfterEach
+    void tearDown() {
+        if (mockedDBConnection != null) {
+            mockedDBConnection.close();
+        }
+    }
+
+    // Test addUser() - success
     @Test
-    public void testGetUserByUsername() throws Exception {
-        UserDao userDao = mock(UserDao.class);
-        User user = new User("ram", "123", "admin");
-        when(userDao.getUserByUsername("ram")).thenReturn(user);
-        User result = userDao.getUserByUsername("ram");
+    void testAddUserSuccess() throws Exception {
+        User user = new User(1, "ajit", "1234", "ADMIN");
+
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+
+        userDAO.addUser(user);
+
+        verify(mockPreparedStatement).setString(1, "ajit");
+        verify(mockPreparedStatement).setString(2, "1234");
+        verify(mockPreparedStatement).setString(3, "ADMIN");
+        verify(mockPreparedStatement).executeUpdate();
+    }
+
+    @Test
+    void testAddUserDuplicateUsername() throws Exception {
+        User user = new User(2, "existingUser", "abcd", "USER");
+
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        doThrow(new SQLIntegrityConstraintViolationException("Duplicate username"))
+                .when(mockPreparedStatement).executeUpdate();
+
+        assertDoesNotThrow(() -> userDAO.addUser(user));
+        verify(mockPreparedStatement).executeUpdate();
+    }
+
+    //Test getUserByUsername() - success
+    @Test
+    void testGetUserByUsernameSuccess() throws Exception {
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getInt("id")).thenReturn(1);
+        when(mockResultSet.getString("username")).thenReturn("ajit");
+        when(mockResultSet.getString("password")).thenReturn("1234");
+        when(mockResultSet.getString("role")).thenReturn("ADMIN");
+
+        User result = userDAO.getUserByUsername("ajit");
+
         assertNotNull(result);
-        assertEquals("ram", result.getUsername());
-        assertEquals("123", result.getPassword());
-        assertEquals("admin", result.getRole());
-        verify(userDao, times(1)).getUserByUsername("ram");
+        assertEquals("ajit", result.getUsername());
+        assertEquals("ADMIN", result.getRole());
+    }
+
+    // Test getUserByUsername() - user not found
+    @Test
+    void testGetUserByUsernameNotFound() throws Exception {
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+
+        when(mockResultSet.next()).thenReturn(false);
+
+        User result = userDAO.getUserByUsername("nonexistent");
+        assertNull(result);
     }
 }
