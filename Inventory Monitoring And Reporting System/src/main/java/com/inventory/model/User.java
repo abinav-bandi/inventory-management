@@ -5,17 +5,31 @@ public class User {
     String username;
     String password;
     String role;
+    String email;
+    boolean isVerified;
 
-    public User(int id, String username, String password, String role) {
+    public String getEmail() {
+        return this.email;
+    }
+
+    public void setEmail(final String email) {
+        this.email = email;
+    }
+
+    public User(int id, String username, String password, String role,String email, boolean isVerified) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.email = email;
+        this.isVerified = isVerified;
     }
-    public User( String username, String password, String role) {
+    public User( String username, String password, String role, String email, boolean isVerified) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.email = email;
+        this.isVerified = isVerified;
     }
     public User(){
 
@@ -60,6 +74,15 @@ public class User {
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 '}';
+    }
+    private boolean verified;
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 }
 

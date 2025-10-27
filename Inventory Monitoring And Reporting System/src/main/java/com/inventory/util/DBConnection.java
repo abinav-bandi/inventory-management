@@ -7,24 +7,21 @@ import java.sql.SQLException;
 public class DBConnection {
 
     private static final String URL = System.getenv("DBURL");
-    private static final String USER = System.getenv("USER");
+    private static final String USER = System.getenv("USERNAME");
     private static final String PASSWORD = System.getenv("PASSWORD");
-
-
-    static {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");  // load driver
-        } catch (ClassNotFoundException e) {
-            System.err.println(" MySQL JDBC Driver not found!");
-            e.printStackTrace();
-        }
+    private static boolean testMode = false;
+    public static void enableTestMode() {
+        testMode = true;
     }
 
     public static Connection getConnection()  {
+        if(URL == null || USER == null || PASSWORD == null){
+            throw new RuntimeException("Database environment variables are not set");
+        }
         try {
-            return DriverManager.getConnection(URL, USER, PASSWORD);
+            return DriverManager.getConnection(URL,USER,PASSWORD);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Data base connection failed"+e);
         }
     }
 }

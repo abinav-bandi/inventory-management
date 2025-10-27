@@ -10,5 +10,7 @@ public interface UserDao {
     void addUser(User user) throws SQLException ;
     User getUserByUsername(String username) throws SQLException;
     boolean deleteUser(String username) throws SQLException;
+    public void verifyUser(String username) throws SQLException;
+    User getUserByEmail(String email) throws SQLException;
 
 }
