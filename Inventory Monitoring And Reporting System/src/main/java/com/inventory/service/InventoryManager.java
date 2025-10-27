@@ -62,7 +62,6 @@ public class InventoryManager{
 
             boolean deleted = dao.deleteProduct(id);
             if (!deleted) throw new NoProductFoundException("❌ Product with ID " + id + " not found.");
-            System.out.println("🧹 Product deleted successfully!");
 
         } catch (NumberFormatException e) {
             System.out.println("⚠️ Invalid input! Please enter a number.");

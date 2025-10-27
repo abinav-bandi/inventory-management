@@ -8,7 +8,15 @@ public class Product {
     private String category;
     private int quantity;
     private double price;
+    private int threshold;
 
+    public int getThreshold() {
+        return this.threshold;
+    }
+
+    public void setThreshold(final int threshold) {
+        this.threshold = threshold;
+    }
 
     public Product(int id, String name, String category, int quantity, double price) {
         setId(id);
